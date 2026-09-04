@@ -34,3 +34,16 @@ def test_cli_switch_command(mock_switch, tmp_path: Path):
     assert result.exit_code == 0
     assert "Successfully switched to preset 'Day'" in result.output
     mock_switch.assert_called_once_with("Day")
+
+def test_cli_clone_command(tmp_path: Path):
+    runner = CliRunner()
+    config_path = tmp_path / "config.toml"
+    load_config(config_path)
+
+    result = runner.invoke(cli, ["--config", str(config_path), "clone", "MyCurrentSetup"])
+    assert result.exit_code == 0
+    assert "Successfully cloned current system setup into preset 'MyCurrentSetup'" in result.output
+
+    # Verify saved
+    cfg = load_config(config_path)
+    assert "MyCurrentSetup" in cfg.presets
