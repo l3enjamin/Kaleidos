@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kaleidos"
+version = "0.1.0"
+description = "Unified atomic environment, display profile, and dynamic theming manager for KDE Plasma 6"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.7.0",
+    "click>=8.1.0",
+    "tomli-w>=1.0.0",
+]
+
+[project.scripts]
+kaleidos = "kaleidos.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kaleidos"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
