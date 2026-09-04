@@ -11,6 +11,9 @@ class KDEConfigFiles:
     kwinrc: Path = Path.home() / ".config" / "kwinrc"
     ksplashrc: Path = Path.home() / ".config" / "ksplashrc"
     kdeglobals: Path = Path.home() / ".config" / "kdeglobals"
+    plasmarc: Path = Path.home() / ".config" / "plasmarc"
+    kcminputrc: Path = Path.home() / ".config" / "kcminputrc"
+    kscreenlockerrc: Path = Path.home() / ".config" / "kscreenlockerrc"
     kvconfig: Path = Path.home() / ".config" / "Kvantum" / "kvantum.kvconfig"
 
 def update_ini_file(file_path: Path, section: str, key: str, value: str) -> None:
@@ -67,17 +70,53 @@ def apply_plasma_theme(theme: ThemeConfig, files: Optional[KDEConfigFiles] = Non
     if files is None:
         files = KDEConfigFiles()
 
-    # 1. Update kwinrc (Aurorae window decoration)
-    update_ini_file(files.kwinrc, "org.kde.kdecoration2", "theme", theme.aurorae_theme)
-    update_ini_file(files.kwinrc, "org.kde.kdecoration2", "library", "org.kde.kwin.aurorae")
+    # 1. Window decoration (Aurorae)
+    if theme.aurorae_theme:
+        update_ini_file(files.kwinrc, "org.kde.kdecoration2", "theme", theme.aurorae_theme)
+        update_ini_file(files.kwinrc, "org.kde.kdecoration2", "library", "org.kde.kwin.aurorae")
+    if theme.aurorae_buttons_left is not None:
+        update_ini_file(files.kwinrc, "org.kde.kdecoration2", "ButtonsOnLeft", theme.aurorae_buttons_left)
+    if theme.aurorae_buttons_right is not None:
+        update_ini_file(files.kwinrc, "org.kde.kdecoration2", "ButtonsOnRight", theme.aurorae_buttons_right)
+    if theme.aurorae_border_size is not None:
+        update_ini_file(files.kwinrc, "org.kde.kdecoration2", "BorderSize", theme.aurorae_border_size)
 
-    # 2. Update ksplashrc (Splash Screen engine and theme lock)
-    update_ini_file(files.ksplashrc, "Splash", "Theme", theme.splash_theme)
-    update_ini_file(files.ksplashrc, "Splash", "Engine", theme.splash_engine)
+    # 2. Splash Screen (lock both Splash and KSplash sections)
+    if theme.splash_theme:
+        update_ini_file(files.ksplashrc, "Splash", "Theme", theme.splash_theme)
+        update_ini_file(files.ksplashrc, "KSplash", "Theme", theme.splash_theme)
+    if theme.splash_engine:
+        update_ini_file(files.ksplashrc, "Splash", "Engine", theme.splash_engine)
+        update_ini_file(files.ksplashrc, "KSplash", "Engine", theme.splash_engine)
 
-    # 3. Update kdeglobals (Color scheme & KDE widget style)
-    update_ini_file(files.kdeglobals, "General", "ColorScheme", theme.color_scheme)
-    update_ini_file(files.kdeglobals, "KDE", "widgetStyle", theme.widget_style)
+    # 3. Colors & Application Style (kdeglobals)
+    if theme.color_scheme:
+        update_ini_file(files.kdeglobals, "General", "ColorScheme", theme.color_scheme)
+    if theme.application_style:
+        update_ini_file(files.kdeglobals, "KDE", "widgetStyle", theme.application_style)
+    if theme.toolbar_button_style:
+        update_ini_file(files.kdeglobals, "Toolbar style", "ToolButtonStyle", theme.toolbar_button_style)
+    if theme.gtk_theme:
+        update_ini_file(files.kdeglobals, "GTK", "GtkTheme", theme.gtk_theme)
+    if theme.icon_theme:
+        update_ini_file(files.kdeglobals, "Icons", "Theme", theme.icon_theme)
+    if theme.sound_theme:
+        update_ini_file(files.kdeglobals, "Sounds", "Theme", theme.sound_theme)
 
-    # 4. Update Kvantum configuration
-    update_ini_file(files.kvconfig, "General", "theme", theme.kvantum_theme)
+    # 4. Plasma Style (Desktop theme: Panel & Widgets)
+    if theme.plasma_style:
+        update_ini_file(files.plasmarc, "Theme", "name", theme.plasma_style)
+
+    # 5. Cursor Theme & Size (kcminputrc)
+    if theme.cursor_theme:
+        update_ini_file(files.kcminputrc, "Mouse", "cursorTheme", theme.cursor_theme)
+    if theme.cursor_size is not None:
+        update_ini_file(files.kcminputrc, "Mouse", "cursorSize", str(theme.cursor_size))
+
+    # 6. Lock screen wallpaper plugin / config
+    if theme.lock_screen_wallpaper:
+        update_ini_file(files.kscreenlockerrc, "Greeter", "WallpaperPlugin", theme.lock_screen_wallpaper)
+
+    # 7. Kvantum configuration
+    if theme.kvantum_theme:
+        update_ini_file(files.kvconfig, "General", "theme", theme.kvantum_theme)

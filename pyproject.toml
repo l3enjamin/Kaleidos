@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kaleidos"
-version = "0.1.0"
+version = "0.2.0"
 description = "Unified atomic environment, display profile, and dynamic theming manager for KDE Plasma 6"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -16,6 +16,8 @@ dependencies = [
 
 [project.scripts]
 kaleidos = "kaleidos.cli:main"
+kaleid = "kaleidos.daemon:main"
+kaleidliner = "kaleidos.linter:kaleidliner_cli"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kaleidos"]

@@ -1,21 +1,69 @@
 from __future__ import annotations
 import tomllib
 from pathlib import Path
-from typing import Dict, List, Optional, Literal
-from pydantic import BaseModel, Field
+from typing import Dict, List, Optional, Literal, Any
+from pydantic import BaseModel, Field, model_validator
 import tomli_w
 
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "kaleidos" / "config.toml"
 
 class ThemeConfig(BaseModel):
     mode: Literal["light", "dark"] = "dark"
-    widget_style: str = "kvantum"
-    kvantum_theme: str = "WhiteSur"
-    aurorae_theme: str = "__aurorae__svg__WhiteSur"
-    color_scheme: str = "WhiteSur"
-    splash_theme: str = "com.github.vinceliuice.WhiteSur"
-    splash_engine: str = "KSplashQML"
-    plasma_style: Optional[str] = "WhiteSur"
+    
+    # 1. Colors & Application Style (Qt/KDE)
+    color_scheme: Optional[str] = None
+    application_style: Optional[str] = "kvantum"
+    toolbar_button_style: Optional[str] = None  # TextUnderIcon, IconOnly, TextOnly, TextBesideIcon
+    kvantum_theme: Optional[str] = None
+    
+    # 2. GTK / GNOME Style
+    gtk_theme: Optional[str] = None
+    
+    # 3. Plasma Desktop Style (Panel, Tray, Widgets)
+    plasma_style: Optional[str] = None
+    
+    # 4. Aurorae Window Decoration
+    aurorae_theme: Optional[str] = None
+    aurorae_buttons_left: Optional[str] = None
+    aurorae_buttons_right: Optional[str] = None
+    aurorae_border_size: Optional[str] = None
+    
+    # 5. Icons, Cursors & Sounds
+    icon_theme: Optional[str] = None
+    cursor_theme: Optional[str] = None
+    cursor_size: Optional[int] = None
+    sound_theme: Optional[str] = None
+    
+    # 6. Splash Screen
+    splash_theme: Optional[str] = None
+    splash_engine: Optional[str] = "KSplashQML"
+    
+    # 7. Wallpaper & Lock Screen
+    wallpaper: Optional[str] = None
+    lock_screen_wallpaper: Optional[str] = None
+    
+    # 8. Privileged Settings (CLI only, requires root)
+    boot_screen_theme: Optional[str] = None
+    login_screen_theme: Optional[str] = None
+
+    @property
+    def widget_style(self) -> Optional[str]:
+        return self.application_style
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_legacy_widget_style(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "widget_style" in data and "application_style" not in data:
+                data["application_style"] = data.pop("widget_style")
+        return data
+
+    @model_validator(mode="after")
+    def validate_kvantum_dependency(self) -> ThemeConfig:
+        if self.application_style and "kvantum" in self.application_style.lower():
+            if not self.kvantum_theme:
+                raise ValueError("When application_style is set to 'kvantum', kvantum_theme cannot be empty.")
+        return self
 
 class DisplayOutputConfig(BaseModel):
     name: str
@@ -32,7 +80,7 @@ class DisplayOutputConfig(BaseModel):
 
 class Preset(BaseModel):
     name: str
-    display_profile: Optional[str] = None  # Deprecated backward-compatible fallback
+    display_profile: Optional[str] = None  # Deprecated legacy compatibility
     displays: List[DisplayOutputConfig] = Field(default_factory=list)
     theme: ThemeConfig
 
@@ -43,23 +91,29 @@ class Config(BaseModel):
 def get_default_config() -> Config:
     day_theme = ThemeConfig(
         mode="light",
-        widget_style="kvantum",
+        color_scheme="WhiteSur",
+        application_style="kvantum",
         kvantum_theme="WhiteSur",
         aurorae_theme="__aurorae__svg__WhiteSur",
-        color_scheme="WhiteSur",
+        aurorae_buttons_left="SFE",
+        aurorae_border_size="Tiny",
+        icon_theme="WhiteSurcle",
+        plasma_style="WhiteSur",
         splash_theme="com.github.vinceliuice.WhiteSur",
-        splash_engine="KSplashQML",
-        plasma_style="WhiteSur"
+        splash_engine="KSplashQML"
     )
     night_theme = ThemeConfig(
         mode="dark",
-        widget_style="kvantum-dark",
+        color_scheme="WhiteSurDark",
+        application_style="kvantum-dark",
         kvantum_theme="WhiteSurDark",
         aurorae_theme="__aurorae__svg__WhiteSur-dark",
-        color_scheme="WhiteSurDark",
+        aurorae_buttons_left="SFE",
+        aurorae_border_size="Tiny",
+        icon_theme="WhiteSurcle",
+        plasma_style="WhiteSur-dark",
         splash_theme="com.github.vinceliuice.WhiteSur-dark",
-        splash_engine="KSplashQML",
-        plasma_style="WhiteSur-dark"
+        splash_engine="KSplashQML"
     )
     
     return Config(
