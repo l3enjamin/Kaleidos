@@ -1,7 +1,7 @@
 from __future__ import annotations
 import tomllib
 from pathlib import Path
-from typing import Dict, Optional, Literal
+from typing import Dict, List, Optional, Literal
 from pydantic import BaseModel, Field
 import tomli_w
 
@@ -17,9 +17,23 @@ class ThemeConfig(BaseModel):
     splash_engine: str = "KSplashQML"
     plasma_style: Optional[str] = "WhiteSur"
 
+class DisplayOutputConfig(BaseModel):
+    name: str
+    enabled: bool = True
+    primary: Optional[bool] = None
+    priority: Optional[int] = None
+    mode: Optional[str] = None
+    scale: Optional[float] = None
+    position: Optional[str] = None
+    rotation: Optional[str] = None
+    hdr: Optional[bool] = None
+    vrr: Optional[str] = None
+    brightness: Optional[int] = None
+
 class Preset(BaseModel):
     name: str
-    display_profile: Optional[str] = None
+    display_profile: Optional[str] = None  # Deprecated backward-compatible fallback
+    displays: List[DisplayOutputConfig] = Field(default_factory=list)
     theme: ThemeConfig
 
 class Config(BaseModel):
@@ -47,14 +61,12 @@ def get_default_config() -> Config:
         splash_engine="KSplashQML",
         plasma_style="WhiteSur-dark"
     )
-    day_profile = str(Path.home() / ".local/share/kde-display-profiles/Day.json")
-    night_profile = str(Path.home() / ".local/share/kde-display-profiles/Night.json")
     
     return Config(
         default_preset="Day",
         presets={
-            "Day": Preset(name="Day", display_profile=day_profile, theme=day_theme),
-            "Night": Preset(name="Night", display_profile=night_profile, theme=night_theme)
+            "Day": Preset(name="Day", theme=day_theme),
+            "Night": Preset(name="Night", theme=night_theme)
         }
     )
 

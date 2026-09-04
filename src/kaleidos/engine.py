@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 from kaleidos.config import Config, Preset, load_config
 from kaleidos.plasma_writer import apply_plasma_theme
-from kaleidos.display import apply_display_profile
+from kaleidos.display import apply_display_profile, apply_display_outputs
 from kaleidos.reloader import notify_plasma_theme_change
 
 class KaleidosEngine:
@@ -22,8 +22,11 @@ class KaleidosEngine:
         # 1. Apply Atomic Plasma & Theme configs
         apply_plasma_theme(preset.theme)
 
-        # 2. Apply KScreen Display profile if provided
-        if preset.display_profile:
+        # 2. Apply Native TOML Display configuration
+        if preset.displays:
+            apply_display_outputs(preset.displays)
+        elif preset.display_profile:
+            # Backward-compatible fallback for legacy json profiles
             p = Path(preset.display_profile).expanduser()
             if p.exists():
                 apply_display_profile(p)

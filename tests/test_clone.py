@@ -30,7 +30,7 @@ def test_capture_current_system_preset(tmp_path: Path):
     preset = capture_current_system_preset(
         name="ClonedSetup",
         files=files,
-        display_profile=None
+        capture_displays=False
     )
 
     assert preset.name == "ClonedSetup"

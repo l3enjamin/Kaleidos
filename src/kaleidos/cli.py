@@ -26,7 +26,8 @@ def list_presets(ctx: click.Context) -> None:
     click.echo("Available Kaleidos Presets:")
     for name, preset in cfg.presets.items():
         prefix = "*" if name == cfg.default_preset else " "
-        click.echo(f"  {prefix} {name} (Mode: {preset.theme.mode}, Kvantum: {preset.theme.kvantum_theme}, Aurorae: {preset.theme.aurorae_theme})")
+        display_count = len(preset.displays) if preset.displays else (1 if preset.display_profile else 0)
+        click.echo(f"  {prefix} {name} (Mode: {preset.theme.mode}, Kvantum: {preset.theme.kvantum_theme}, Aurorae: {preset.theme.aurorae_theme}, Displays: {display_count})")
 
 @cli.command("status")
 @click.pass_context
@@ -52,23 +53,22 @@ def switch(ctx: click.Context, preset_name: str) -> None:
 @cli.command("clone")
 @click.argument("preset_name")
 @click.option(
-    "-d", "--display-profile", "display_profile",
-    type=str, default=None,
-    help="Optional path to existing KScreen display JSON profile"
+    "--no-displays", is_flag=True, default=False,
+    help="Do not capture current display layouts into the preset"
 )
 @click.option(
     "--set-default", is_flag=True, default=False,
     help="Set this newly cloned preset as the default preset"
 )
 @click.pass_context
-def clone_cmd(ctx: click.Context, preset_name: str, display_profile: str | None, set_default: bool) -> None:
-    """Clone currently active KDE Plasma / KWin / Kvantum / Splash settings into a new preset."""
+def clone_cmd(ctx: click.Context, preset_name: str, no_displays: bool, set_default: bool) -> None:
+    """Clone currently active KDE Plasma / KWin / Kvantum / Splash and display settings into a new TOML preset."""
     config_path = ctx.obj["config_path"]
     cfg = load_config(config_path)
 
     preset = capture_current_system_preset(
         name=preset_name,
-        display_profile=display_profile
+        capture_displays=(not no_displays)
     )
 
     cfg.presets[preset_name] = preset
@@ -83,9 +83,11 @@ def clone_cmd(ctx: click.Context, preset_name: str, display_profile: str | None,
     click.echo(f"  Widget Style:  {preset.theme.widget_style}")
     click.echo(f"  Kvantum Theme: {preset.theme.kvantum_theme}")
     click.echo(f"  Color Scheme:  {preset.theme.color_scheme}")
-    if display_profile:
-        click.echo(f"  Display JSON:  {display_profile}")
-    click.echo(f"\nSaved to {config_path}")
+    click.echo(f"  Displays:      {len(preset.displays)} output(s) captured directly into TOML")
+    for d in preset.displays:
+        status = "enabled" if d.enabled else "disabled"
+        click.echo(f"    - {d.name}: {status} (Mode: {d.mode}, Scale: {d.scale}, HDR: {d.hdr})")
+    click.echo(f"\nSaved natively to {config_path}")
 
 def main() -> None:
     cli(obj={})

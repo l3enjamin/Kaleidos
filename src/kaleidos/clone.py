@@ -1,9 +1,10 @@
 from __future__ import annotations
 import re
 from pathlib import Path
-from typing import Optional
-from kaleidos.config import Preset, ThemeConfig
+from typing import Optional, List
+from kaleidos.config import Preset, ThemeConfig, DisplayOutputConfig
 from kaleidos.plasma_writer import KDEConfigFiles
+from kaleidos.display import capture_current_displays
 
 def read_ini_value(file_path: Path, sections: list[str], key: str, default: str = "") -> str:
     p = Path(file_path).expanduser()
@@ -30,7 +31,7 @@ def read_ini_value(file_path: Path, sections: list[str], key: str, default: str 
 def capture_current_system_preset(
     name: str,
     files: Optional[KDEConfigFiles] = None,
-    display_profile: Optional[str] = None
+    capture_displays: bool = True
 ) -> Preset:
     if files is None:
         files = KDEConfigFiles()
@@ -69,8 +70,12 @@ def capture_current_system_preset(
         plasma_style=None
     )
 
+    displays: List[DisplayOutputConfig] = []
+    if capture_displays:
+        displays = capture_current_displays()
+
     return Preset(
         name=name,
-        display_profile=display_profile,
+        displays=displays,
         theme=theme
     )
