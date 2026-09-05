@@ -43,5 +43,29 @@ The MVP of **Kaleidos** delivers the foundational atomic environment and theme s
 - Background daemon solar scheduling loop & KWin Night Light D-Bus subscriber (`kaleid`) — reserved for Track 2.
 - Wallpaper-based Material You Monet color extraction — reserved for Track 3.
 - Desktop Panel / Widget screen anchoring against laptop undock scrambling — reserved for Track 4.
-- Native Plasma 6 QML Widget (`org.kde.kaleidos`) — reserved for Track 5.
-- Home Assistant webhook client — reserved for Track 6.
+- Pre-flight preview engine & lock/login screen asset safety testing — reserved for Track 5.
+- Native Plasma 6 QML Widget (`org.kde.kaleidos`) — reserved for Track 6.
+- Home Assistant ambient automation & webhook integration — reserved for Track 7.
+
+## 5. Deliverables & Acceptance Criteria
+
+### Deliverables
+1. **Config & Schema Engine:** `src/kaleidos/config.py` defining `Preset`, `DisplayOutputConfig`, and `Config` models.
+2. **Atomic Multi-Config Writer:** `src/kaleidos/plasma_writer.py` updating `kwinrc`, `ksplashrc`, `kdeglobals`, `plasmarc`, `kcminputrc`, `kscreenlockerrc`, and `kvantum.kvconfig`.
+3. **Display Runner:** `src/kaleidos/display.py` translating TOML outputs directly to `kscreen-doctor` commands.
+4. **Desktop Reloader:** `src/kaleidos/reloader.py` issuing KWin D-Bus reconfigure commands.
+5. **System Snapshot Engine:** `src/kaleidos/clone.py` capturing current active desktop state into valid TOML presets.
+6. **Strict Linter:** `src/kaleidos/linter.py` (`kaleidliner`) checking dependency integrity and privileged boundaries.
+7. **CLI Executable:** `src/kaleidos/cli.py` (`kaleidos switch`, `kaleidos list`, `kaleidos status`, `kaleidos clone`).
+8. **Daemon Stub:** `src/kaleidos/daemon.py` (`kaleid`).
+9. **Full Test Suite:** 22 unit tests across parser, writer, display, clone, linter, and CLI.
+
+### Acceptance Criteria
+- [x] **AC1: Clean Single Configuration:** All theme properties and display outputs reside in a single `config.toml`, avoiding JSON escaping.
+- [x] **AC2: Non-Destructive Atomic Updates:** Existing sections, unmanaged keys, and comments in KDE INI files are preserved; writes complete via temporary files.
+- [x] **AC3: Splash Screen Retention:** Explicit `ksplashrc` engine and theme values are written, preventing Plasma 6 from wiping splash screens to default Breeze.
+- [x] **AC4: One-Step Snapshot:** Running `kaleidos clone <name>` generates a complete, valid TOML preset matching the live system state.
+- [x] **AC5: Dependency & Privilege Linting:** `kaleidliner` catches missing paired attributes (e.g. `application_style="kvantum"` without `kvantum_theme`) and warns on root-only properties (boot/login screen).
+- [x] **AC6: Crash Prevention / Single Coordinator:** Preset switching executes sequentially in a single process, preventing the race conditions that cause `plasmashell` crashes.
+- [x] **AC7: Automated Test Coverage:** 100% of core engine, parser, display, clone, and linter tests pass deterministically.
+
