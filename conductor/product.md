@@ -76,5 +76,6 @@ The user spectrum for Kaleidos follows a clear capability gradient:
 - **One-Command Desktop Snapshot (`kaleidos clone`):** Instantly captures the active multi-monitor layout, window decorations, cursor sizes, and styling into clean, human-readable TOML presets.
 - **Strict Linting & Validation (`kaleidliner`):** Detects dependency mismatches (e.g., Kvantum widget style without matching Kvantum theme) and isolates privileged properties before applying configs.
 - **D-Bus Event Triggering & External Synchronization:** Exposes a high-level D-Bus service (`org.kde.Kaleidos`) while actively subscribing to system signals (KWin Night Light, screen hotplug events) for reactive switching.
-- **Smart Home Automation & Webhook Integration (Roadmap):** Features a generic webhook listener capable of reacting to Home Assistant entity states to harmonize desktop profiles with ambient room conditions.
+- **Platform-Agnostic Ambient Automation & Webhooks:** Features a versatile automation bridge supporting Home Assistant, Node-RED, n8n, or any REST-compatible service with dual architectures (local push server listener vs. client polling), declarative header/payload templates, and secure token retrieval via system `secret-tool`.
 - **Zero-Flicker Architecture:** Decouples user-facing UI from backend scheduling via a lightweight background daemon (`kaleid`), an instant CLI (`kaleidos`), and a native Qt6/QML Plasma 6 applet (`org.kde.kaleidos`).
+

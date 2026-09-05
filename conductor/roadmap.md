@@ -11,8 +11,8 @@ This roadmap directly translates the needs and pain points of our three target u
 
 | Persona | Archetype | Primary Focus & Pain Points |
 | :--- | :--- | :--- |
-| **Persona 1: The SE.RA.PH Architect** (センパイ) | Advanced Power Optimizer | Multi-monitor undocking widget scramble; QML lock/login blind-firing; daemon crash interference; Home Assistant automation. |
-| **Persona 2: The Rice Enthusiast** | Ordinary Competent User | Wallpapers desynchronized with color scheme; Kvantum/Aurorae/Splash reset bugs; seamless light/dark transitions. |
+| **Persona 1: The SE.RA.PH Architect** (センパイ) | Advanced Power Optimizer | Multi-monitor undocking widget scramble; QML lock/login blind-firing; daemon crash interference; Home Assistant / Node-RED ambient automation. |
+| **Persona 2: The Rice Enthusiast** | Ordinary Competent User | Wallpapers desynchronized with color scheme; Kvantum/Aurorae/Splash reset bugs; seamless light/dark transitions; needs GUI tray. |
 | **Persona 3: The Converted Windows Migrant** | Baseline / Incapable User | Brittle rices; black screen lockouts; missing system tray UI; needs "just works" one-click preset switching. |
 
 ---
@@ -22,11 +22,13 @@ This roadmap directly translates the needs and pain points of our three target u
 ```mermaid
 graph TD
     T1[Track 1: Core Engine MVP<br/>Atomic Writer, Displays & Kaleidliner] --> T2[Track 2: Daemon & Scheduling<br/>kaleid, Solar & Night Light]
-    T1 --> T3[Track 3: Material You Monet<br/>Wallpaper Palette Engine]
-    T1 --> T4[Track 4: Desktop Widget Anchoring<br/>Laptop Undock Screen Protection]
-    T1 --> T5[Track 5: Pre-Flight & Previews<br/>Lock/Login Screen QML Safety]
-    T2 --> T6[Track 6: Plasma 6 Applet<br/>System Tray QML Widget]
-    T2 --> T7[Track 7: Home Assistant Webhook<br/>Smart Room Ambient Sync]
+    T2 --> T3[Track 3: Material You Monet<br/>Wallpaper Palette Engine]
+    T2 --> T4[Track 4: Platform-Agnostic REST & Automation<br/>Server Push / Client Poll / secret-tool]
+    T3 --> T5[Track 5: Plasma 6 Applet<br/>System Tray QML Widget]
+    T4 --> T5
+    T5 --> V1((★ Milestone: v1.0 Public Release))
+    V1 --> T6[Track 6: Desktop Widget Anchoring<br/>Laptop Undock Screen Protection]
+    V1 --> T7[Track 7: Pre-Flight & Previews<br/>Lock/Login Screen QML Safety]
 ```
 
 ---
@@ -98,8 +100,55 @@ graph TD
 
 ---
 
-### Track 4: Multi-Monitor Layout & Desktop Widget Anchoring (`desktop_widget_anchoring`)
-- **Status:** Planned
+### Track 4: Platform-Agnostic REST & Ambient Automation (`ambient_automation`)
+- **Status:** Planned (Swapped before Applet for lower complexity & backend readiness)
+- **Target Personas:** センパイ (Architect)
+- **Scope & Objectives:**
+  - Provide a platform-agnostic automation bridge supporting Home Assistant, Node-RED, n8n, or any REST-compatible service.
+  - Dual communication architectures:
+    1. **Server Listener Mode (Event-Driven / Preferred for Workstations & Home Laptops):** `kaleid` runs a lightweight local HTTP listener. Automation systems push events (e.g. `POST /api/v1/switch {"preset": "Night"}`) directly to the desktop when home states change, eliminating polling overhead.
+    2. **Client Mode (Polling / Outbound Push):** For users with firewall constraints or security preferences avoiding open local ports, `kaleid` can periodically poll external entity states or make outbound webhook calls when presets switch locally.
+  - Customizable request header and payload templates (e.g. `{preset}`, `{mode}`, `{timestamp}`).
+  - Dynamic token / credential retrieval via system `secret-tool` (Freedesktop Secret Service) to eliminate plaintext secrets in `config.toml`.
+- **Deliverables:**
+  - `src/kaleidos/automation/server.py`: Async HTTP server in `kaleid` with bearer token authentication.
+  - `src/kaleidos/automation/client.py`: Outbound REST client and polling worker.
+  - `src/kaleidos/automation/secrets.py`: Integration with `secret-tool` and Secret Service API.
+  - `src/kaleidos/automation/template.py`: Header and JSON payload template renderer.
+  - Configuration section in `config.toml` (`[automation]`).
+- **Acceptance Criteria:**
+  - [ ] External HTTP POST `{"preset": "<name>"}` securely triggers atomic preset switch within < 200ms.
+  - [ ] Outbound webhooks and polling execute asynchronously without blocking daemon scheduling or desktop rendering.
+  - [ ] Token lookups successfully resolve dynamically from `secret-tool` without persisting plaintext credentials in config.
+  - [ ] User can customize headers and payload formats to interface seamlessly with Home Assistant, Node-RED, or n8n.
+  - [ ] Both Server Listener and Client Polling modes can be independently toggled on/off.
+
+---
+
+### Track 5: Native Plasma 6 System Tray Applet (`plasma6_applet`)
+- **Status:** Planned (★ Gate for Version 1.0 Public Release)
+- **Target Personas:** Converted Windows Migrant & Rice Enthusiast
+- **Scope & Objectives:**
+  - Deliver a native Qt Quick / QML applet (`org.kde.kaleidos`) for the KDE Plasma 6 panel / system tray.
+  - Provide an intuitive GUI for one-click preset switching, manual light/dark mode toggles, active automation status, and upcoming solar transition countdown.
+  - Communicate with `kaleid` via high-level D-Bus (`org.kde.Kaleidos`).
+  - Enable non-technical users to adopt Kaleidos with zero CLI friction.
+- **Deliverables:**
+  - `plasmoid/`: Complete Plasma 6 applet package (`metadata.json`, `CompactRepresentation.qml`, `FullRepresentation.qml`).
+  - Applet installer / uninstaller command: `kaleidos install-applet`.
+  - D-Bus interface definitions in `kaleid` (`org.kde.Kaleidos`).
+  - Package distribution metadata for KDE Store and Arch PKGBUILD.
+- **Acceptance Criteria:**
+  - [ ] Applet appears seamlessly in Plasma 6 system tray with adaptive icon matching current mode.
+  - [ ] Clicking a preset applies it instantly with visual feedback and zero UI freeze.
+  - [ ] Follows native Kirigami design patterns and respects active system styling.
+  - [ ] Shows current active preset, upcoming solar transition, and connected automation status.
+  - [ ] **Release Gate v1.0:** Upon completion of this track, Kaleidos v1.0 is published for user feedback!
+
+---
+
+### Track 6: Multi-Monitor Layout & Desktop Widget Anchoring (`desktop_widget_anchoring`)
+- **Status:** Post-v1 Optimization
 - **Target Personas:** センパイ (Architect)
 - **Scope & Objectives:**
   - Solve the laptop undocking pain point: prevent desktop widgets, applets, and Plasma panels from scrambling across virtual screens when unplugging external displays.
@@ -116,8 +165,8 @@ graph TD
 
 ---
 
-### Track 5: Pre-Flight Safety & Theme Previews (`preflight_and_previews`)
-- **Status:** Planned
+### Track 7: Pre-Flight Safety & Theme Previews (`preflight_and_previews`)
+- **Status:** Post-v1 Hardening
 - **Target Personas:** センパイ (Architect) & Converted Windows Migrant
 - **Scope & Objectives:**
   - Solve the blind-firing pain point: prevent users from being locked out or encountering black screens due to missing QML imports or broken user-installed login/lock screen themes.
@@ -131,37 +180,3 @@ graph TD
   - [ ] `kaleidos preview --lockscreen` spawns an isolated window showing the exact lock screen appearance without locking the live session.
   - [ ] Missing QML imports or corrupted theme packages are caught and rejected before applying, preventing black screen lockouts.
   - [ ] Clear diagnostics displayed identifying the missing dependency (e.g., missing Kirigami plugin or font).
-
----
-
-### Track 6: Native Plasma 6 System Tray Applet (`plasma6_applet`)
-- **Status:** Planned
-- **Target Personas:** Converted Windows Migrant & Rice Enthusiast
-- **Scope & Objectives:**
-  - Provide a first-class, beautiful Qt Quick / QML applet (`org.kde.kaleidos`) for the KDE Plasma 6 panel/tray.
-  - Enable one-click preset switching, manual light/dark toggle, and upcoming solar schedule display.
-  - Communicate with `kaleid` via high-level D-Bus (`org.kde.Kaleidos`).
-- **Deliverables:**
-  - `plasmoid/`: Complete Plasma 6 applet package (`metadata.json`, `CompactRepresentation.qml`, `FullRepresentation.qml`).
-  - Applet installer command: `kaleidos install-applet`.
-- **Acceptance Criteria:**
-  - [ ] Applet appears seamlessly in Plasma 6 system tray with adaptive icon.
-  - [ ] Clicking a preset applies it instantly with visual feedback and zero UI freeze.
-  - [ ] Follows native Kirigami design patterns and respects active system styling.
-
----
-
-### Track 7: Smart Home & Ambient Webhook Integration (`homeassistant_webhook`)
-- **Status:** Planned
-- **Target Personas:** センパイ (Architect)
-- **Scope & Objectives:**
-  - Harmonize desktop environment presets with smart room illumination and Home Assistant home automation states.
-  - Provide authenticated webhook receiver and outbound notification dispatcher in `kaleid`.
-- **Deliverables:**
-  - `src/kaleidos/webhook.py`: Lightweight async HTTP webhook server.
-  - Home Assistant REST client for event publishing and entity state queries.
-  - Configuration section in `config.toml` (`[homeassistant]`).
-- **Acceptance Criteria:**
-  - [ ] External HTTP POST `{"preset": "Night"}` securely triggers preset switch within < 200ms.
-  - [ ] Switching presets locally notifies configured Home Assistant webhook.
-  - [ ] Network failures or unreachable Home Assistant instances do not block or crash local desktop switching.

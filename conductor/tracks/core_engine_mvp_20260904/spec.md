@@ -42,10 +42,11 @@ The MVP of **Kaleidos** delivers the foundational atomic environment and theme s
 ## 4. Out of Scope for this Track
 - Background daemon solar scheduling loop & KWin Night Light D-Bus subscriber (`kaleid`) — reserved for Track 2.
 - Wallpaper-based Material You Monet color extraction — reserved for Track 3.
-- Desktop Panel / Widget screen anchoring against laptop undock scrambling — reserved for Track 4.
-- Pre-flight preview engine & lock/login screen asset safety testing — reserved for Track 5.
-- Native Plasma 6 QML Widget (`org.kde.kaleidos`) — reserved for Track 6.
-- Home Assistant ambient automation & webhook integration — reserved for Track 7.
+- Platform-agnostic REST & ambient automation engine (server push, client poll, secret-tool) — reserved for Track 4.
+- Native Plasma 6 QML System Tray Widget (`org.kde.kaleidos`) & v1.0 Release Gate — reserved for Track 5.
+- Desktop Panel / Widget screen anchoring against laptop undock scrambling — reserved for Track 6.
+- Pre-flight preview engine & lock/login screen asset safety testing — reserved for Track 7.
+
 
 ## 5. Deliverables & Acceptance Criteria
 
