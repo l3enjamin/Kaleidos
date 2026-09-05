@@ -39,3 +39,14 @@ Follow strict Test-Driven Development (TDD: Red-Green-Refactor) for each compone
   - [x] Implement `src/kaleidos/cli.py` with commands `switch`, `list`, `status`.
 - [x] Task: Phase 4 Verification & Checkpoint
   - [x] Run full test suite and verify CLI execution against live test configurations.
+
+## Phase 5: Complete Theming Taxonomy, Snapshot Cloning & Kaleidliner Linter
+- [x] Task: TDD - Extended Theming Taxonomy & Native TOML Displays
+  - [x] Write unit tests in `tests/test_extended_theming.py` and `tests/test_display_toml.py`.
+  - [x] Implement extended fields across `src/kaleidos/config.py`, `src/kaleidos/plasma_writer.py`, and `src/kaleidos/display.py`.
+- [x] Task: TDD - Kaleidliner Validator & Full Desktop Snapshot
+  - [x] Write unit tests in `tests/test_linter.py` and update `tests/test_clone.py`.
+  - [x] Implement `src/kaleidos/linter.py` and upgrade `src/kaleidos/clone.py`.
+  - [x] Register `kaleid` and `kaleidliner` in `pyproject.toml`.
+- [x] Task: Phase 5 Verification & Checkpoint
+  - [x] Run full test suite with `pytest` (22/22 passed).
