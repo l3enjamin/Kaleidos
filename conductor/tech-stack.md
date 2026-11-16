@@ -6,7 +6,7 @@
 - **IPC / D-Bus Service:** `dbus-fast` or `sdbus-python` (high-performance asynchronous D-Bus binding exporting `org.kde.Kaleidos`)
 - **Config & Preset Validation:** `pydantic` v2 (strict JSON schema validation for Profile Presets)
 - **CLI Framework:** `click` (fast, clean command-line interface)
-- **Dynamic Theming / Color Extraction:** `material-color-utilities-python` / `pillow` (Google Monet algorithm implementation)
+- **Dynamic Theming / Accent Color:** Native KDE Plasma 6 wallpaper accent color (paired with **Klassy** window decoration / application style; Material You / Monet & Kvantum dropped)
 - **KDE System Tools Integration:**
   - `kscreen-doctor` for display configuration
   - `kwriteconfig6` / in-memory INI parsers (`configparser` with case preservation)

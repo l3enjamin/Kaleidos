@@ -12,7 +12,7 @@ This roadmap directly translates the needs and pain points of our three target u
 | Persona | Archetype | Primary Focus & Pain Points |
 | :--- | :--- | :--- |
 | **Persona 1: The SE.RA.PH Architect** (センパイ) | Advanced Power Optimizer | Multi-monitor undocking widget scramble; QML lock/login blind-firing; daemon crash interference; Home Assistant / Node-RED ambient automation. |
-| **Persona 2: The Rice Enthusiast** | Ordinary Competent User | Wallpapers desynchronized with color scheme; Kvantum/Aurorae/Splash reset bugs; seamless light/dark transitions; needs GUI tray. |
+| **Persona 2: The Rice Enthusiast** | Ordinary Competent User | Wallpapers desynchronized with color scheme; Klassy/Aurorae/Splash reset bugs; seamless light/dark transitions; needs GUI tray. |
 | **Persona 3: The Converted Windows Migrant** | Baseline / Incapable User | Brittle rices; black screen lockouts; missing system tray UI; needs "just works" one-click preset switching. |
 
 ---
@@ -22,9 +22,8 @@ This roadmap directly translates the needs and pain points of our three target u
 ```mermaid
 graph TD
     T1[Track 1: Core Engine MVP<br/>Atomic Writer, Displays & Kaleidliner] --> T2[Track 2: Daemon & Scheduling<br/>kaleid, Solar & Night Light]
-    T2 --> T3[Track 3: Material You Monet<br/>Wallpaper Palette Engine]
     T2 --> T4[Track 4: Platform-Agnostic REST & Automation<br/>Server Push / Client Poll / secret-tool]
-    T3 --> T5[Track 5: Plasma 6 Applet<br/>System Tray QML Widget]
+    T2 --> T5[Track 5: Plasma 6 Applet<br/>System Tray QML Widget]
     T4 --> T5
     T5 --> V1((★ Milestone: v1.0 Public Release))
     V1 --> T6[Track 6: Desktop Widget Anchoring<br/>Laptop Undock Screen Protection]
@@ -82,21 +81,9 @@ graph TD
 
 ---
 
-### Track 3: Wallpaper Monet Dynamic Palette Engine (`material_you_monet`)
-- **Status:** Planned
-- **Target Personas:** Rice Enthusiast & Converted Windows Migrant
-- **Scope & Objectives:**
-  - Replace `kde-material-you-colors` with native in-engine Material Design 3 Monet palette extraction.
-  - Sample current desktop wallpaper, extract primary harmonic colors, and generate WCAG-compliant light and dark palettes.
-  - Dynamically generate and patch KDE Color Scheme files (`~/.local/share/color-schemes/KaleidosDynamic.colors`).
-- **Deliverables:**
-  - `src/kaleidos/monet.py`: Color extraction engine from wallpaper image files.
-  - `src/kaleidos/palette_writer.py`: KDE `.colors` INI generator with proper tonal palettes.
-  - CLI flag: `kaleidos switch --from-wallpaper <path>`.
-- **Acceptance Criteria:**
-  - [ ] Extracts harmonic color scheme within < 500ms for typical 4K wallpapers.
-  - [ ] Generates valid Plasma 6 color scheme with proper contrast ratios (meeting WCAG AA standards for window text).
-  - [ ] Integrates into TOML preset syntax via `color_scheme = "auto:monet"`.
+### ~~Track 3: Wallpaper Monet Dynamic Palette Engine (`material_you_monet`)~~
+- **Status:** Dropped / Out of Scope (Superseded by native KDE Plasma 6 wallpaper accent color + Klassy)
+- **Rationale:** Switched from Kvantum (+ blur) to **Klassy** to eliminate `plasmashell` crashes, and adopted native KDE wallpaper accent color which pairs cleanly with Klassy without requiring custom Material You / Monet palette extraction.
 
 ---
 
